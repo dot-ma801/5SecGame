@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang = "ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>5秒ゲーム[demo]</title>
+ 
+        <!-- CSS部分  -->
+        <style>
+            
+            /* 中央寄せ */
+            div{
+                text-align: center;
+            }
+
+            /* 以下のCSSは末尾参考URL参照 */
+                /*チェックは見えなくする*/
+                .hidden_box input {
+                    display: none;
+                }
+
+                /*中身を非表示にしておく*/
+                .hidden_box .hidden_show {
+                    height: 0;
+                    padding: 0;
+                    overflow: hidden;
+                    opacity: 0;
+                    /* transition: 0.8s;  */
+                }
+
+                /*クリックで中身表示*/
+                .hidden_box input:checked ~ .hidden_show {
+                    padding: 10px 0;
+                    height: auto;
+                    opacity: 1;
+                }
+
+        </style>
+
+        <!-- JavaScript部分 -->
+        <script>
+            var bStClickFlg = false;
+            var Result;
+            var Second, mSecond;
+
+            // キーボード操作
+            window.document.onkeydown = function(event)
+            {
+                console.log(event.key);
+
+                if (event.key === 'Enter')
+                {
+                    buttonStClick();
+                }
+                else if(event.key === 'Backspace')
+                {
+                    buttonReClick();
+                }
+                else if(event.key === 'Delete')
+                {
+                    if(myform.checkbox.checked == true)
+                    {
+                        myform.checkbox.checked = false;
+                    }
+                    else if(myform.checkbox.checked == false)
+                    {
+                        myform.checkbox.checked = true;
+                    }
+                }
+            }
+
+            // スタートボタン押下
+            function buttonStClick()
+            {
+                // スタートボタンを押した
+                if(bStClickFlg == false)
+                {
+                    // スタートボタンを押した時間を取得
+                    StartTime = new Date;
+                    // スタートボタンを押したよフラグ
+                    bStClickFlg = true;
+                    // スタートボタンの表示をストップに
+                    myform.ButtonStart.value = 'ストップ';
+                    // 
+                    myInterval = setInterval("Tick()",10);
+                    // 画像を非表示
+                    myform.label1.checked = false;
+                }
+                // ストップボタンを押した
+                else
+                {
+                    Tick();
+
+                    // ストップボタンの表示をスタートに
+                    myform.ButtonStart.value = 'スタート';
+
+                    // スタートボタンを押したよフラグ
+                    bStClickFlg = false;
+
+                    // 経過時間を表示
+                    timer.textContent = Result;
+                    
+                    clearInterval(myInterval);
+
+                    // 画像を非表示
+                    myform.label1.checked = false;
+
+                    // 成功時の処理
+                    if((Second == 4 && mSecond >= 000
+                    //995
+                    ) || (Second == 5 && mSecond <= 000
+                    //005
+                    ) )
+                    {
+                        //alert("おめでとおう！！！");
+                        // 画像を表示
+                        myform.label1.checked = true;
+                    }
+                }
+            }
+
+            // リセットボタンを押下
+            function buttonReClick()
+            {
+                // タイマーテキストをリセット
+                timer.textContent = "0 : 000";
+
+                // ストップボタンの表示をスタートに
+                myform.ButtonStart.value = 'スタート';
+
+                // スタートボタンを押したよフラグ                   
+                bStClickFlg = false;
+                clearInterval(myInterval);
+
+                // 画像を非表示
+                myform.label1.checked = false;
+            }
+
+            // 10ms毎にする処理
+            function Tick()
+            {
+                // ストップを押した時間・経過時間を取得
+                StopTime = new Date;
+                // 現在の経過時間を単位msで計算
+                passTime = StopTime.getTime() - StartTime.getTime();
+                // 秒の部分を計算
+                Second = Math.floor(passTime/1000);
+                mSecond = passTime%1000;
+                // ミリ秒を3桁に直す(これはString)
+                var mSecond3 = ('000'+ mSecond).slice(-3);
+
+                Result = Second + "：" + mSecond3;
+                
+                if(myform.checkbox.checked)
+                {
+                    // 2秒でカウントを隠す
+                    if(Second >= 2)
+                    {
+                        timer.textContent = "カウント中…";
+                    }                
+                    else
+                    {
+                        timer.textContent = Result;
+                    }
+                }
+                else
+                {
+                    timer.textContent = Result;
+                }
+            }
+        </script>
+    </head>
+
+    <!-- html本文 -->
+    <body>
+        <div>
+            <h1>5秒ゲーム</h1>
+
+            <form name="myform">
+                <p style="color: red;  font-weight: bold;">
+                    <s> <!-- <s>タグは修正線！！ -->
+                    4:995 ~ 5:005の間で止めてみよう！！
+                    </s>
+                </p>
+                <h2 style="color: red;  font-weight: bold;">
+                    デモだから4:000 ~ 5:00！！
+                </h2>
+
+                <p>
+                    <input type="checkbox" id="checkbox">カウント中にタイマーを隠す[Delete]
+                </p>
+                <p style="font-size:2.5em;" id="timer">0 : 000</p>
+
+                <table align="center" border="0">
+                    <tr>
+                        <td>
+                            <input type="button" id="ButtonStart" value="スタート" onclick="buttonStClick()">
+                        </td>
+                        <td>
+                            <input type="button" id="ButtonReset" value="リセット" onclick="buttonReClick()">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            [Enter]
+                        </td>
+                        <td>
+                            [BackSpace]
+                        </td>
+                    </tr>
+                </table>
+                
+                <h6>
+                ※すべてのボタンはキーボードでも操作できます。<br>
+                </h6>
+
+                <div class="hidden_box">
+                    <label for="label1"></label>
+                    <input type="checkbox" id="label1"/>
+                    <div class="hidden_show">
+                        <!-- 非表示ここから -->
+                        <p>
+                            <img src="pose_dance_ukareru_woman.png" width="108" height="110">
+                            おめでとう！！！ 
+                            <img src="pose_dance_ukareru_man.png" width="108" height="110">
+                        </p>
+                        <!-- ここまで -->
+                    </div>
+                </div>
+            </form>
+        </div>
+    </body>
+</html>
+
+
+
+<!-- 参考URL
+1.アルゴリズム
+　http://cya.sakura.ne.jp/java/stopw.htm
+2.Qiita(テキストラベルの変更方法)
+　https://qiita.com/ryomaDsakamoto/items/c49a9d4cd2017405af1b 
+3.Qiita(キーボードイベント)
+　https://qiita.com/ledsun/items/fb2570cc1542039f4516
+4.CSS表示/非表示
+　https://saruwakakun.com/html-css/reference/hidden-show
+-->
